@@ -4,7 +4,7 @@ import time
 import argparse
 import getpass
 import config
-
+import sys
 
 class LinBot:
     def __init__(self, email: str, password: str, search: str):
@@ -28,6 +28,13 @@ class LinBot:
         input_password.send_keys(self.password)
         self.browser.find_el_xpath(
             xpath=config.selectors['login_submit']).click()
+        try:
+            self.browser.wait(el=config.selectors['page_loaded'])
+        except:
+            print('\tLogin Failed')
+            self.browser.close()
+            sys.exit()
+
         print('\t-> Done\n')
 
     def search_page(self):
@@ -49,7 +56,7 @@ class LinBot:
     def connect(self):
         print('[] Connect with 2 people')
         for button_connect in self.button_connects[:self.limit_connect]:
-            print(button_connect)
+            print(button_connect.get_attribute('aria-label'))
             button_connect.click()
             self.browser.wait(el=config.selectors['connect_confirm'])
             button_send = self.browser.find_el_xpath(
@@ -77,7 +84,8 @@ class LinBot:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--role', help='Keywords to use while searching people')
+    parser.add_argument(
+        '--role', help='Keywords to use while searching people')
     parser.add_argument('--user', help='Email or phone')
     args = parser.parse_args()
     password = getpass.getpass('Linkedin password:')

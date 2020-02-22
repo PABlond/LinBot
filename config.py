@@ -3,7 +3,8 @@ selectors = {
     "login_password": "//input[@name='session_password']",
     "login_submit": "//button[@class='sign-in-form__submit-btn']",
     "connect": "//button[text()='Connect']",
-    "connect_confirm": "//span[text()='Send now']"
+    "connect_confirm": "//span[text()='Send now']",
+    "page_loaded": "//div[@class='authentication-outlet']"
 }
 
 urls = {
