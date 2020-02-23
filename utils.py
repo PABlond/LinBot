@@ -11,23 +11,26 @@ def get_next_round(round_duration: int):
 def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
 
+
 def get_ids():
     with open('profiles_ids.lst', 'r') as f:
         lines = [x.replace('\n', '') for x in f.readlines()]
     return lines
+
 
 def append_ids(data: str):
     if check_duplicate_ids(data) is True:
         with open('profiles_ids.lst', 'a+') as f:
             f.write("\n{}".format(data))
 
+
 def update_ids(profile_id: str):
     lines = get_ids()
     with open("profiles_ids.lst", "w") as f:
         for line in lines:
-            if line.strip("\n") != profile_id:
-                f.write(line)
-
+            line = line.replace('\n', '')
+            if line != profile_id:
+                f.write('{}\n'.format(line))
 
 
 def check_duplicate_ids(data: str):
@@ -43,10 +46,12 @@ def store_request(headers, body):
         },
             f, ensure_ascii=False, indent=4)
 
+
 def get_request():
     with open('request.json') as f:
         data = json.load(f)
     return data
+
 
 def set_request(profile_id: str):
     req = get_request()
