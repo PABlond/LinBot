@@ -1,4 +1,4 @@
-from selenium import webdriver
+from seleniumwire import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -10,7 +10,7 @@ import time
 class Browser:
     def __init__(self):
         options = Options()
-        options.headless = True
+        # options.headless = True
         self.driver = webdriver.Firefox(options=options)
     
     def close(self):
@@ -26,7 +26,7 @@ class Browser:
         return self.driver.find_elements_by_xpath(xpath)
 
     def wait(self, el):
-        WebDriverWait(self.driver, 10).until(
+        WebDriverWait(self.driver, 360).until(
             EC.visibility_of_element_located((
                 By.XPATH, el)))
     
