@@ -21,7 +21,7 @@ def get_ids():
 def append_ids(data: str):
     if check_duplicate_ids(data) is True:
         with open('profiles_ids.lst', 'a+') as f:
-            f.write("\n{}".format(data))
+            f.write("{}\n".format(data))
 
 
 def update_ids(profile_id: str):

@@ -7,6 +7,7 @@ import config
 import sys
 import requests
 
+
 class LinBot:
     def __init__(self, email: str, password: str, search: str):
         self.email = email
@@ -47,12 +48,7 @@ class LinBot:
         self.browser.scroll_bottom()
         time.sleep(1)
 
-        for x in self.browser.driver.find_elements_by_css_selector('.search-result__info a'):
-            # print('1', x.get_attribute("href"))
-            href = x.get_attribute("href")
-            if "https://www.linkedin.com/in/" in href:
-                profile_id = href.split("https://www.linkedin.com/in/")[1][:-1]
-                utils.append_ids(profile_id)
+        self.get_available_connect()
 
         if self.store_connect is False:
             self.connect()
@@ -63,8 +59,8 @@ class LinBot:
         max_pagination = max_pagination.split(' ')[-1]
 
         if int(max_pagination) >= 2:
-            if int(max_pagination) > 2:
-                max_pagination = "2"
+            if int(max_pagination) > 10:
+                max_pagination = "11"
             for y in range(2, int(max_pagination)):
                 self.search_page_n += 1
                 self.browser.goto(url="{}&page={}".format(
@@ -73,28 +69,26 @@ class LinBot:
                 time.sleep(1)
                 if self.store_connect is False:
                     self.connect()
-                for x in self.browser.driver.find_elements_by_css_selector('.search-result__info a'):
+                self.get_available_connect()
+        print('\t-> Done\n')
+
+    def get_available_connect(self):
+        print('\t-> Get available connects - Page {}'.format(self.search_page_n))
+        for y in self.browser.driver.find_elements_by_css_selector('.search-result'):
+            try:
+                if y.find_element_by_css_selector('.search-result__actions').text == "Connect":
+                    x = y.find_element_by_css_selector(
+                        '.search-result__info a')
                     href = x.get_attribute("href")
-                    if "https://www.linkedin.com/in/" in href:
+                    if "/in/" in href:
                         profile_id = href.split(
                             "https://www.linkedin.com/in/")[1][:-1]
                         utils.append_ids(profile_id)
-
-        # for x in self.browser.driver.find_elements_by_class_name("search-result__info"):
-        #     for y in x.find_elements_by_tag_name("a"):
-        #         print(y.get_attribute("href"))
-
-# while True:
-
-        #     if len(self.button_connects) >= self.limit_connect:
-        #         break
-        #     self.search_page_n += self.limit_connect
-        #     self.browser.goto(url="{}&page={}".format(
-        #         url_search.format(self.search), str(self.search_page_n)))
-        print('\t-> Done\n')
+            except:
+                pass
 
     def connect(self):
-        print('[] Connect with 2 people')
+        print('\t-> Get a sample request')
         self.button_connects = self.browser.find_els_xpath(
             xpath=config.selectors['connect'])[:1]
         for button_connect in self.button_connects[:self.limit_connect]:
@@ -107,30 +101,22 @@ class LinBot:
             self.store_connect = True
             time.sleep(2)
 
-        for request in self.browser.driver.requests:
-            if request.path == "https://www.linkedin.com/voyager/api/growth/normInvitations":
-                utils.store_request(
-                    headers=request.headers, body=request.body)
-
-        print('\t-> Done\n')
-
     def close(self):
         print('[] Closing the browser')
         self.browser.driver.close()
-    
+
     def send_reqs(self):
         lines = utils.get_ids()
         for profile_id in lines:
             print('[] Send request to {}'.format(profile_id))
             req = utils.set_request(profile_id=profile_id)
-            r = requests.post("https://www.linkedin.com/voyager/api/growth/normInvitations", 
-                headers=req['headers'], data=req['body'])
-            print('\t-> Done')            
+            r = requests.post("https://www.linkedin.com/voyager/api/growth/normInvitations",
+                              headers=req['headers'], data=req['body'])
+            print('\t-> Done')
             utils.update_ids(profile_id=profile_id)
-            print("[] Next round : {}".format(
+            print("\t-> Next round : {}\n".format(
                 utils.get_next_round(round_duration=180)))
             time.sleep(180)
-
 
     def run(self):
         # while True:
