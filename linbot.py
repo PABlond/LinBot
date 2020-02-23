@@ -61,7 +61,6 @@ class LinBot:
             '.artdeco-pagination__indicator button')[-1].get_attribute(
                 'aria-label')
         max_pagination = max_pagination.split(' ')[-1]
-        print(max_pagination)
 
         if int(max_pagination) >= 2:
             if int(max_pagination) > 2:
@@ -75,7 +74,6 @@ class LinBot:
                 if self.store_connect is False:
                     self.connect()
                 for x in self.browser.driver.find_elements_by_css_selector('.search-result__info a'):
-                    # print('1', x.get_attribute("href"))
                     href = x.get_attribute("href")
                     if "https://www.linkedin.com/in/" in href:
                         profile_id = href.split(
@@ -110,8 +108,6 @@ class LinBot:
             time.sleep(2)
 
         for request in self.browser.driver.requests:
-            print("PATH", request.path)
-            print('HEADERS', request.headers)
             if request.path == "https://www.linkedin.com/voyager/api/growth/normInvitations":
                 utils.store_request(
                     headers=request.headers, body=request.body)
@@ -124,15 +120,16 @@ class LinBot:
     
     def send_reqs(self):
         lines = utils.get_ids()
-        for id in lines:
-            print('[] Send request to {}'.format(id))
-            req = utils.set_request(profile_id=id)
+        for profile_id in lines:
+            print('[] Send request to {}'.format(profile_id))
+            req = utils.set_request(profile_id=profile_id)
             r = requests.post("https://www.linkedin.com/voyager/api/growth/normInvitations", 
                 headers=req['headers'], data=req['body'])
             print('\t-> Done')            
+            utils.update_ids(profile_id=profile_id)
             print("[] Next round : {}".format(
-                utils.get_next_round(round_duration=60)))
-            time.sleep(60)
+                utils.get_next_round(round_duration=180)))
+            time.sleep(180)
 
 
     def run(self):
