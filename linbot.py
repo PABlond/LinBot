@@ -54,8 +54,8 @@ class LinBot:
             self.connect()
 
         max_pagination = self.browser.driver.find_elements_by_css_selector(
-            '.artdeco-pagination__indicator button')[-1].get_attribute(
-                'aria-label')
+            config.selectors['pagination_button'])[-1].get_attribute(
+                config.selectors['aria_label'])
         max_pagination = max_pagination.split(' ')[-1]
 
         if int(max_pagination) >= 2:
@@ -76,13 +76,13 @@ class LinBot:
         print('\t-> Get available connects - Page {}'.format(self.search_page_n))
         for y in self.browser.driver.find_elements_by_css_selector('.search-result'):
             try:
-                if y.find_element_by_css_selector('.search-result__actions').text == "Connect":
+                if y.find_element_by_css_selector(config.selectors['search_actions']).text == "Connect":
                     x = y.find_element_by_css_selector(
-                        '.search-result__info a')
+                        config.selectors['search_link'])
                     href = x.get_attribute("href")
                     if "/in/" in href:
                         profile_id = href.split(
-                            "https://www.linkedin.com/in/")[1][:-1]
+                            config.urls['base'] + config.urls['in'])[1][:-1]
                         utils.append_ids(profile_id)
             except:
                 pass
@@ -92,7 +92,7 @@ class LinBot:
         self.button_connects = self.browser.find_els_xpath(
             xpath=config.selectors['connect'])[:1]
         for button_connect in self.button_connects[:self.limit_connect]:
-            print(button_connect.get_attribute('aria-label'))
+            print(button_connect.get_attribute(config.selectors['aria_label']))
             button_connect.click()
             self.browser.wait(el=config.selectors['connect_confirm'])
             button_send = self.browser.find_el_xpath(
@@ -110,7 +110,7 @@ class LinBot:
         for profile_id in lines:
             print('[] Send request to {}'.format(profile_id))
             req = utils.set_request(profile_id=profile_id)
-            r = requests.post("https://www.linkedin.com/voyager/api/growth/normInvitations",
+            r = requests.post(config.urls['base'] + config.urls['connect'],
                               headers=req['headers'], data=req['body'])
             print('\t-> Done')
             utils.update_ids(profile_id=profile_id)
@@ -124,10 +124,8 @@ class LinBot:
         utils.clear()
         self.login()
         self.search_page()
-        # self.connect()
         self.close()
         self.send_reqs()
-        # time.sleep(300)
 
 
 if __name__ == "__main__":
